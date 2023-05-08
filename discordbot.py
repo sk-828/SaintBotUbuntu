@@ -1,5 +1,6 @@
 import math
 import discord
+from discord.ext import tasks
 from datetime import datetime
 import random
 import re
@@ -7,6 +8,9 @@ from dotenv import load_dotenv
 import sqlite3
 import datetime
 import os
+import json
+import requests
+import codecs
 from func import download_image_class
 #import requests
 
@@ -70,9 +74,12 @@ pattern_dice = "[0-9]{1,2}D[0-9]{1,3}"
 pattern_point = "[0-9]{1,8}"
 split_pattern = 'D'
 
+charas = {}
+
 # with open('1.txt',encoding="utf-8") as f:
 #  contents = f.read()
-#  print(contents)
+#  print(contents
+# )
 
 def search(name,guildid):
     con=sqlite3.connect("charaDB.db")
@@ -94,33 +101,63 @@ def searchDelete(name,guildid,authorid):
     finally:
         con.commit()
 
+def task():
+    for i in range(0,11):
+        url ="https://script.google.com/macros/s/AKfycbyJLkB5dbYGurJsjbgJjJLJkKhh9rWp1I-dc-RVt47GexRtCIG3Y2iGgv2ncyREQCihXg/exec?row=" + str(i)
+        filename = str(i) +".json"
+        urlData = requests.get(url).content
+        with open(filename ,mode='wb') as f: # wb でバイト型を書き込める
+            f.write(urlData)
+    makeDB()
+
+def makeDB():
+    global charas
+    charas ={}
+    for i in range(1,7):
+        filename = str(i) +".json"
+        f = open(filename, encoding="utf-8")
+        a = f.readlines()
+        f.close()
+        a=a[0].strip('[["')
+        a=a.strip('"]]')
+        a=a.split('"],["')
+        b=[]
+        for i in a:
+            b.append(i.split('","'))
+        for i in range(1,len(b)-1):
+            charas[b[i][0]]="一人称:"+b[i][4]+", 二人称:"+b[i][5]
+    print("OK")
+
+
 @client.event
 async def on_ready():
+    loop.start()
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
 
 
-#@tasks.loop(seconds=60)
-#async def loop():
-    # 現在の時刻
-    #now = datetime.now().strftime('%H:%M')
-    #if now == '00:00':
-        #channel = client.get_channel(742963855038218280)
-        #await channel.send('リヴァイアサンのダイダルウェイブ！'):
-        #await message.add_reaction("diving_mask:")
-
-    # ループ処理実行
+@tasks.loop(hours=24)
+async def loop():
+    task()
 
 @client.event
 async def on_message(message):
+    if message.content.startswith("/update"):
+        task()
+    if message.content.startswith("/chara"):
+        msg=message.content.split()
+        print(charas)
+        if msg[1] in charas:
+            me=charas[msg[1]]
+            await message.channel.send(msg[1]+"   "+me)
     if message.content.startswith("/pokeS"):
         msg=message.content.split(" ")
         n=int(msg[1])+20
         junsoku=int(msg[1])+52
         saisoku=round((int(msg[1])+52)*1.1,1)
-        await message.channel.send("無振り:"+str(n)+" 準速:"+str(junsoku)+" 最速"+str(saisoku)+" 最速スカーフ"+str(saisoku*1.5))
+        await message.channel.send("無振り:"+str(n)+" 準速:"+str(junsoku)+" 最速"+str(saisoku)+" 最速スカーフ"+str(round(saisoku*1.5)))
     if message.content.startswith("/pokeRS"):
         msg=message.content.split(" ")
         speed=int(msg[1])
@@ -338,6 +375,5 @@ async def on_message(message):
             await message.channel.send(R18[s])
 
 
-#loop.start()
 load_dotenv()
 client.run(os.getenv("DISCORD_TOKEN"))
