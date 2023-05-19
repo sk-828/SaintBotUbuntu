@@ -67,6 +67,37 @@ f.close()
 f = open('text/全肯定リルシャロ.txt', encoding="utf-8")
 charlotte = f.readlines()
 f.close()
+fileFR3 = open('text/FR3.txt', encoding="utf-8")
+FR3 = fileFR3.readlines()
+fileFR4 = open('text/FR4.txt', encoding="utf-8")
+FR4 = fileFR4.readlines()
+fileFR5 = open('text/FR5.txt', encoding="utf-8")
+FR5 = fileFR5.readlines()
+
+fileSR3 = open('text/SR3.txt', encoding="utf-8")
+SR3 = fileSR3.readlines()
+fileSR4 = open('text/SR4.txt', encoding="utf-8")
+SR4 = fileSR4.readlines()
+fileSR5 = open('text/SR5.txt', encoding="utf-8")
+SR5 = fileSR5.readlines()
+
+fileBR3 = open('text/BR3.txt', encoding="utf-8")
+BR3 = fileBR3.readlines()
+fileBR4 = open('text/BR4.txt', encoding="utf-8")
+BR4 = fileBR4.readlines()
+fileBR5 = open('text/BR5.txt', encoding="utf-8")
+BR5 = fileBR5.readlines()
+
+fileFR3.close()
+fileFR4.close()
+fileFR5.close()
+fileSR3.close()
+fileSR4.close()
+fileSR5.close()
+fileBR3.close()
+fileBR4.close()
+fileBR5.close()
+
 #res = requests.get("https://script.google.com/macros/s/AKfycbyJLkB5dbYGurJsjbgJjJLJkKhh9rWp1I-dc-RVt47GexRtCIG3Y2iGgv2ncyREQCihXg/exec?row=10") 
 #tarotComments=res.json()
 
@@ -102,7 +133,7 @@ def searchDelete(name,guildid,authorid):
         con.commit()
 
 def task():
-    for i in range(0,11):
+    for i in range(0,12):
         url ="https://script.google.com/macros/s/AKfycbyJLkB5dbYGurJsjbgJjJLJkKhh9rWp1I-dc-RVt47GexRtCIG3Y2iGgv2ncyREQCihXg/exec?row=" + str(i)
         filename = str(i) +".json"
         urlData = requests.get(url).content
@@ -373,7 +404,32 @@ async def on_message(message):
         if client.user != message.author:
             s = random.randint(0, len(R18) - 1)
             await message.channel.send(R18[s])
+    if message.content.startswith("/KBF"):
+        dice=random.randint(1,101)
+        if dice>=96:
+            await message.channel.send("☆☆☆☆☆ "+random.choice(FR5))
 
+        elif dice>=70:
+            await message.channel.send("☆☆☆☆ "+random.choice(FR4))
+        else:
+            await message.channel.send("☆☆☆ "+random.choice(FR3))
+    if message.content.startswith("/KBS"):
+        dice=random.randint(1,101)
+        if dice>=96:
+            await message.channel.send("☆☆☆☆☆ "+random.choice(SR5))
+        elif dice>=70:
+            await message.channel.send("☆☆☆☆ "+random.choice(SR4))
+        else:
+            await message.channel.send("☆☆☆ "+random.choice(SR3))
+    if message.content.startswith("/KBB"):
+        dice=random.randint(1,101)
+        if dice>=96:
+            await message.channel.send("☆☆☆☆☆ "+random.choice(BR5))
+        elif dice>=70:
+            await message.channel.send("☆☆☆☆ "+random.choice(BR4))
+        else:
+            await message.channel.send("☆☆☆ "+random.choice(BR3))
+                
 
 load_dotenv()
 client.run(os.getenv("DISCORD_TOKEN"))
